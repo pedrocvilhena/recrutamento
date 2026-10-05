@@ -11,11 +11,14 @@
   "dependencies": {
     "@mantine/core": "^7.0.0",
     "@mantine/hooks": "^7.0.0",
+    "@prisma/client": "5",
     "@tabler/icons-react": "^2.34.0",
     "@types/node": "20.6.3",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.16",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.2",
     "next": "13.5.2",
@@ -24,11 +27,16 @@
     "postcss": "^8.4.30",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "reflect-metadata": "^0.2.2",
     "tailwindcss": "3.3.3",
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@babel/core": "7",
+    "@babel/plugin-proposal-decorators": "7",
+    "babel-plugin-parameter-decorator": "^1.0.16",
     "postcss-preset-mantine": "^1.7.0",
-    "postcss-simple-vars": "^7.0.1"
+    "postcss-simple-vars": "^7.0.1",
+    "prisma": "5"
   }
 }

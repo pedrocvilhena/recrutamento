@@ -35,3 +35,19 @@ To learn more about the tecnologies used in this project, take a look at the fol
 ### Backend
 - [Next API Decorators](https://next-api-decorators.vercel.app/docs/) - Collection of decorators to create typed Next.js API routes, with easy request validation and transformation
 - [Prisma ORM](https://www.prisma.io/docs) - Open source Node.js and TypeScript ORM with an intuitive data model, automated migrations, type-safety, and auto-completion
+## Todo API
+
+Setup:
+
+    yarn install
+    echo DATABASE_URL="file:./dev.db" > .env
+    yarn prisma generate
+    yarn prisma db push
+    yarn dev
+
+Endpoints:
+- GET /api/todos
+- GET /api/todos/:id
+- POST /api/todos  { "title": "..." }
+- PATCH /api/todos/:id  { "title"?: "...", "completed"?: true }
+- DELETE /api/todos/:id

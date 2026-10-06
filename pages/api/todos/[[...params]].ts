@@ -1,67 +1,75 @@
 import "reflect-metadata";
-import {
-  createHandler, Get, Post, Patch, Delete, Body, Param,
-  HttpCode, NotFoundException, ParseNumberPipe, ValidationPipe,
-} from "next-api-decorators";
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { prisma } from "../../../lib/prisma";
+   import {
+     createHandler, Get, Post, Patch, Delete, Body, Param,
+     HttpCode, NotFoundException, BadRequestException, ValidationPipe,
+   } from "next-api-decorators";
+   import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+   import { prisma } from "../../../lib/prisma";
 
-class CreateTodoDto {
-  @IsString()
-  @IsNotEmpty()
-  title!: string;
-}
+   class CreateTodoDto {
+     @IsString()
+     @IsNotEmpty()
+     title!: string;
+   }
 
-class UpdateTodoDto {
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  title?: string;
+   class UpdateTodoDto {
+     @IsOptional()
+     @IsString()
+     @IsNotEmpty()
+     title?: string;
 
-  @IsOptional()
-  @IsBoolean()
-  completed?: boolean;
-}
+     @IsOptional()
+     @IsBoolean()
+     completed?: boolean;
+   }
 
-class TodosHandler {
-  @Get()
-  list() {
-    return prisma.todo.findMany({ orderBy: { id: "asc" } });
-  }
+   function toId(raw: string): number {
+     const id = Number(raw);
+     if (!Number.isInteger(id)) throw new BadRequestException("Invalid id");
+     return id;
+   }
 
-  @Get("/:id")
-  async getOne(@Param("id", ParseNumberPipe) id: number) {
-    const todo = await prisma.todo.findUnique({ where: { id } });
-    if (!todo) throw new NotFoundException("Todo not found");
-    return todo;
-  }
+   class TodosHandler {
+     @Get()
+     list() {
+       return prisma.todo.findMany({ orderBy: { id: "asc" } });
+     }
 
-  @Post()
-  @HttpCode(201)
-  create(@Body(ValidationPipe) body: CreateTodoDto) {
-    return prisma.todo.create({ data: { title: body.title } });
-  }
+     @Get("/:id")
+     async getOne(@Param("id") rawId: string) {
+       const todo = await prisma.todo.findUnique({ where: { id: toId(rawId) } });
+       if (!todo) throw new NotFoundException("Todo not found");
+       return todo;
+     }
 
-  @Patch("/:id")
-  async update(
-    @Param("id", ParseNumberPipe) id: number,
-    @Body(ValidationPipe) body: UpdateTodoDto
-  ) {
-    const exists = await prisma.todo.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException("Todo not found");
-    return prisma.todo.update({
-      where: { id },
-      data: { title: body.title, completed: body.completed },
-    });
-  }
+     @Post()
+     @HttpCode(201)
+     create(@Body(ValidationPipe) body: CreateTodoDto) {
+       return prisma.todo.create({ data: { title: body.title } });
+     }
 
-  @Delete("/:id")
-  @HttpCode(204)
-  async remove(@Param("id", ParseNumberPipe) id: number) {
-    const exists = await prisma.todo.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException("Todo not found");
-    await prisma.todo.delete({ where: { id } });
-  }
-}
+     @Patch("/:id")
+     async update(
+       @Param("id") rawId: string,
+       @Body(ValidationPipe) body: UpdateTodoDto
+     ) {
+       const id = toId(rawId);
+       const exists = await prisma.todo.findUnique({ where: { id } });
+       if (!exists) throw new NotFoundException("Todo not found");
+       return prisma.todo.update({
+         where: { id },
+         data: { title: body.title, completed: body.completed },
+       });
+     }
 
-export default createHandler(TodosHandler);
+     @Delete("/:id")
+     @HttpCode(204)
+     async remove(@Param("id") rawId: string) {
+       const id = toId(rawId);
+       const exists = await prisma.todo.findUnique({ where: { id } });
+       if (!exists) throw new NotFoundException("Todo not found");
+       await prisma.todo.delete({ where: { id } });
+     }
+   }
+
+   export default createHandler(TodosHandler);
